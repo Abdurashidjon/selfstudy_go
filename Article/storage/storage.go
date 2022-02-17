@@ -49,7 +49,7 @@ func (storage *articleStorage) GetList() []models.Article {
 }
 
 func (storage *articleStorage) Search(str string) ([]models.Article, int) {
-	// code
+	//code
 	var res []models.Article
 	count := 0
 	for _, v := range storage.data {
