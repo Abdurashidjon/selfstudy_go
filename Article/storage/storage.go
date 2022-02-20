@@ -6,22 +6,22 @@ import (
 	"gitlab.com/Udevs/Article/models"
 )
 
-type articleStorage struct {
+type ArticleStorage struct {
 	data map[int]models.Article
 }
 
 var ErrorAlreadyExists = errors.New("already exists")
-var ErrorNotFound = errors.New("Not found Id")
+var ErrorNotFound = errors.New("Not found ")
 var ErrorUpdate = errors.New("Not update data by id")
 var ErrorDelete = errors.New("Succes delete")
 
-func NewArticleStorage() articleStorage {
-	return articleStorage{
+func NewArticleStorage() ArticleStorage {
+	return ArticleStorage{
 		data: make(map[int]models.Article),
 	}
 }
 
-func (storage *articleStorage) Add(entity models.Article) error {
+func (storage *ArticleStorage) Add(entity models.Article) error {
 	// code
 	if _, ok := storage.data[entity.ID]; ok {
 		return ErrorAlreadyExists
@@ -30,7 +30,7 @@ func (storage *articleStorage) Add(entity models.Article) error {
 	return nil
 }
 
-func (storage *articleStorage) GetByID(ID int) (resp models.Article, err error) {
+func (storage *ArticleStorage) GetByID(ID int) (resp models.Article, err error) {
 	// code
 	var ok bool
 	if resp, ok = storage.data[ID]; !ok {
@@ -39,7 +39,7 @@ func (storage *articleStorage) GetByID(ID int) (resp models.Article, err error) 
 	return resp, err
 }
 
-func (storage *articleStorage) GetList() []models.Article {
+func (storage *ArticleStorage) GetList() []models.Article {
 	// code
 	var res []models.Article
 	for _, v := range storage.data {
@@ -48,7 +48,7 @@ func (storage *articleStorage) GetList() []models.Article {
 	return res
 }
 
-func (storage *articleStorage) Search(str string) ([]models.Article, int) {
+func (storage *ArticleStorage) Search(str string) ([]models.Article, int) {
 	//code
 	var res []models.Article
 	count := 0
@@ -62,16 +62,15 @@ func (storage *articleStorage) Search(str string) ([]models.Article, int) {
 	return res, count
 }
 
-func (storage *articleStorage) Update(entity models.Article) error {
-	// my code
-	// var ok bool
-	// if ok = storage.data(ID); !ok {
-	// 	return ErrorNotFound
-	// }
-	return nil
+func (storage *ArticleStorage) Update(entity models.Article) (models.Article,error) {
+	if _,ok := storage.data[entity.ID]; !ok {
+		storage .data[entity.ID] = entity 
+		return entity,nil
+	}
+	return entity,ErrorNotFound
 }
 
-func (storage *articleStorage) Delete(ID int) error {
+func (storage *ArticleStorage) Delete(ID int) error {
 	var ok bool
 	if _, ok = storage.data[ID]; !ok {
 		return ErrorNotFound

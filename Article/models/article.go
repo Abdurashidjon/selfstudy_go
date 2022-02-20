@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Content struct {
-	Title string
-	Body  string
+	Title string `json:"title"`
+	Body  string `json:"body"`
 }
 
 type Article struct {
-	ID      int
-	Content // Promoted fiels
-	Author  Person
-	CreatedAt *time.Time
+	ID        int `json:"id"`
+	Content       // Promoted fiels
+	Author    Person `json:"author"`
+	CreatedAt *time.Time `json:"create_at"`
 }

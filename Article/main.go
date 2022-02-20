@@ -15,7 +15,7 @@ func main() {
 	var a1 models.Article
 	a1.ID = 1
 	a1.Title = "Lorem"
-	a1.Body = "Lorem"
+	a1.Body = "Uchuch"
 	var p models.Person = models.Person{
 		Firstname: "Abdulla",
 		Lastname:  "Anvarov",
@@ -38,7 +38,7 @@ func main() {
 	var a2 models.Article
 	a2.ID = 2
 	a2.Title = "1111"
-	a2.Body = "Uchuch"
+	a2.Body = "1111"
 	var p1 models.Person = models.Person{
 		Firstname: "Aziz",
 		Lastname:  "Bahoromov",
@@ -72,7 +72,7 @@ func main() {
 	}
 
 	// Id bo'yicha qidirish
-	getId, err := articleStorage.GetByID(1)
+	getId, err := articleStorage.GetByID(3)
 	if err != nil {
 		panic(err)
 	}
@@ -87,12 +87,27 @@ func main() {
 	getList := articleStorage.GetList()
 
 	// update qilish
-	update := articleStorage.Update(models.Article{})
+	var up3 models.Article
+	up3.ID = 2
+	up3.Title = "Ozgardi"
+	up3.Body = "Ozgardi"
+	var up1 models.Person = models.Person{
+		Firstname: "Qobil ozgardi",
+		Lastname:  "Karimberdiyev xam ozgardi",
+	}
+
+	up3.Author = up1
+	t11 := time.Now()
+	up3.CreatedAt = &t11
+	update, err := articleStorage.Update(up3)
+	if err == nil {
+		panic(err)
+	}
 
 	// search qilish
-	search,count := articleStorage.Search("Uchuch")
+	search, count := articleStorage.Search("Uchuch")
 	if count == 0 {
-        panic("Not found search")
+		fmt.Println(storage.ErrorNotFound)
 	}
 
 	fmt.Println()
@@ -106,6 +121,6 @@ func main() {
 	fmt.Println()
 	fmt.Println("update by ID: ", update)
 	fmt.Println()
-	fmt.Println("Search by string:  ",count,search)
+	fmt.Println("Search by string:  ", count, search)
 
 }
