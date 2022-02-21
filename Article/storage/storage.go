@@ -10,10 +10,15 @@ type ArticleStorage struct {
 	data map[int]models.Article
 }
 
+// Errors
 var ErrorAlreadyExists = errors.New("already exists")
 var ErrorNotFound = errors.New("Not found ")
 var ErrorUpdate = errors.New("Not update data by id")
 var ErrorDelete = errors.New("Succes delete")
+var ErrorNotUpdate = errors.New("Error not found id")
+
+// Succesfull
+var SuccessUpdate = errors.New("Update succesful")
 
 func NewArticleStorage() ArticleStorage {
 	return ArticleStorage{
@@ -62,12 +67,14 @@ func (storage *ArticleStorage) Search(str string) ([]models.Article, int) {
 	return res, count
 }
 
-func (storage *ArticleStorage) Update(entity models.Article) (models.Article,error) {
-	if _,ok := storage.data[entity.ID]; !ok {
-		storage .data[entity.ID] = entity 
-		return entity,nil
+func (storage *ArticleStorage) Update(entity models.Article) (error) {
+	for index, item := range storage.data {
+		if item.ID == entity.ID {
+			storage.data[index] = entity
+			return SuccessUpdate
+		}
 	}
-	return entity,ErrorNotFound
+	return ErrorNotUpdate
 }
 
 func (storage *ArticleStorage) Delete(ID int) error {
