@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
+	"strconv"
+	"time"
 
 	_ "gitlab.com/Udevs/Article/server/docs"
 	"github.com/gin-gonic/gin"
@@ -25,31 +28,20 @@ func main() {
 	router := gin.Default()
 	router.POST("/articles", createArticle)
 	router.GET("/articles", getArticle)
-	router.GET("/articles/id",getArticleById)
+	router.GET("/articles/:id", getArticleById)
+	router.DELETE("/articles/:id", deleteById)
+	router.PUT("articles", updateById)
+	//router.GET("articles/search", getSearch)
 
 	router.GET("/swagger/*any",ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.Run(":8080")
 }
 
-type DefaultError struct {
-	Message string `json:"message"`
-}
-
-// @Router /articles [POST]
-// @Summary Create articels
-// @Description API for creating articles
-// @Tags article
-// @Accept json
-// @Produce json
-// @Param article body models.Article true "normative"
-// @Success 201 {object} string "ok"
-// @Failure 400,404 {object} DefaultError
-// @Failure default {object} DefaultError
-// @Failure 503 {object} DefaultError
+// Bu funksiya esa create qilish uchun
 func createArticle(c *gin.Context) {
 	var article models.Article
-	// t := time.Now()
-	// article.CreatedAt = &t
+	t := time.Now()
+	article.CreatedAt = &t
 
 	if err := c.BindJSON(&article); err != nil {
 		log.Println(err)
@@ -66,29 +58,67 @@ func createArticle(c *gin.Context) {
 	c.JSON(201, "Succes")
 }
 
-// GetAllHandler godoc
-// @Tags article
-// @Summary Show All Article
-// @Description it gets all artciles from memory
-// @ID get-all-handler
-// @Accept json
-// @Produce json
-// @Success 200 {array} models.Article
-// @Failure default {object} DefaultError
-// @Router /articles [get]
+// Funksiya ma'lumotlarni list qilib oladi array ichiga
 func getArticle(c *gin.Context) {
 	resp := articleStorage.GetList()
 	if resp == nil {
 		log.Println("Error not found dokument")
 		c.JSON(404, "Not found")
 	}
-	fmt.Printf("%v\n",resp)
 	c.JSON(200, resp)
 }
 
-func getArticleById(c *gin.Context)  {
-	// var id int
-	// var res models.Article
-	// id = c.Query()
-		
+// Id bo'yicha ma'lumot oluvchi funksiya
+func getArticleById(c *gin.Context) {
+	id := c.Param("id")
+	id1, _ := strconv.Atoi(id)
+	res, err := articleStorage.GetByID(id1)
+	if err != nil {
+		c.JSON(404, "Not found by Id")
+		return
+	}
+	c.JSON(http.StatusOK, res)
 }
+
+// Id bo'yicha ma'lumotni o'chiruvchi funksiya
+func deleteById(c *gin.Context) {
+	id := c.Param("id")
+	id1, _ := strconv.Atoi(id)
+	res := articleStorage.Delete(id1)
+	if res == storage.ErrorNotFound {
+		c.JSON(http.StatusNotFound,"No document")
+		return
+	}
+	c.JSON(http.StatusOK, res)
+}
+
+// id bo'yicha berilgan ma'lumotlarni yangilash
+func updateById(c *gin.Context) {
+	var update models.Article
+
+	res:= articleStorage.Update(update)
+	if err := c.BindJSON(&res); err != nil {
+		log.Println(err)
+		c.JSON(422, err.Error())
+		return
+	}
+	if res == nil {
+		c.JSON(http.StatusNotFound, res.Error())
+		return
+	}
+
+	fmt.Println("aaaaaa ", res)
+	c.JSON(http.StatusOK, res)
+}
+
+// func getSearch(c *gin.Context) {
+// 	search := c.Param("search")
+// 	res, _ := articleStorage.Search(search)
+// 	//err := articleStorage.Delete(id1)
+// 	if res != nil {
+// 		log.Println(res)
+// 		c.JSON(404, "Not found by Id")
+// 		return
+// 	}
+// 	c.JSON(200, res)
+// }

@@ -71,24 +71,9 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// Id bo'yicha qidirish
-	getId, err := articleStorage.GetByID(3)
-	if err != nil {
-		panic(err)
-	}
-
-	// get list
-	//getList := articleStorage.GetList()
-
-	// delete by id
-	delete := articleStorage.Delete(10)
-
-	// get list hamma danlilarni ob kelish
-	getList := articleStorage.GetList()
-
 	// update qilish
 	var up3 models.Article
-	up3.ID = 2
+	up3.ID = 3
 	up3.Title = "Ozgardi"
 	up3.Body = "Ozgardi"
 	var up1 models.Person = models.Person{
@@ -99,10 +84,24 @@ func main() {
 	up3.Author = up1
 	t11 := time.Now()
 	up3.CreatedAt = &t11
-	update, err := articleStorage.Update(up3)
-	if err == nil {
+	update := articleStorage.Update(up3)
+
+	// Id bo'yicha qidirish
+	getId, err := articleStorage.GetByID(3)
+	if err != nil {
 		panic(err)
 	}
+
+	// delete by id
+	delete := articleStorage.Delete(5)
+
+	// get list hamma danlilarni ob kelish
+	getList := articleStorage.GetList()
+
+	
+	// if err == nil {
+	// 	panic(err)
+	// }
 
 	// search qilish
 	search, count := articleStorage.Search("Uchuch")
