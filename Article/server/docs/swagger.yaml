@@ -1,0 +1,94 @@
+definitions:
+  main.DefaultError:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Article:
+    properties:
+      author:
+        $ref: '#/definitions/models.Person'
+      body:
+        type: string
+      create_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.Person:
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: this is a sample article demo
+  termsOfService: https://udevs.io
+  title: Swager Example API
+  version: "1.1"
+paths:
+  /articles:
+    get:
+      consumes:
+      - application/json
+      description: it gets all artciles from memory
+      operationId: get-all-handler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Article'
+            type: array
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Show All Article
+      tags:
+      - article
+    post:
+      consumes:
+      - application/json
+      description: API for creating articles
+      parameters:
+      - description: normative
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/models.Article'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Create articels
+      tags:
+      - article
+swagger: "2.0"
