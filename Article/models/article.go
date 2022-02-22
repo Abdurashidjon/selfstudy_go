@@ -13,3 +13,9 @@ type Article struct {
 	Author    Person `json:"author"`
 	CreatedAt *time.Time `json:"create_at"`
 }
+
+type ArticleReq struct {
+	ID        int `json:"id"`
+	Content       // Promoted fiels
+	Author    Person `json:"author"`
+}
