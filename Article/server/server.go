@@ -167,7 +167,7 @@ func updateById(c *gin.Context) {
 	}
 	res = articleStorage.Update(update)
 	if res != nil {
-		c.JSON(400, res.Error())
+		c.JSON(200, res.Error())
 		return
 	}
 	c.JSON(http.StatusOK, "message: Update completed")
