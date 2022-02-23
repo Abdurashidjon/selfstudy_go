@@ -1,0 +1,237 @@
+definitions:
+  main.DefaultError:
+    properties:
+      message:
+        type: string
+    type: object
+  main.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  main.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  models.Article:
+    properties:
+      author:
+        $ref: '#/definitions/models.Person'
+      body:
+        type: string
+      create_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.ArticleReq:
+    properties:
+      author:
+        $ref: '#/definitions/models.Person'
+      body:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  models.Person:
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: this is a sample article demo
+  termsOfService: https://udevs.io
+  title: Swager Example API
+  version: "1.1"
+paths:
+  /articles:
+    get:
+      consumes:
+      - application/json
+      description: API for get all article
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/models.Article'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Get All
+      tags:
+      - article
+    post:
+      consumes:
+      - application/json
+      description: API for creating article
+      parameters:
+      - description: article
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/models.ArticleReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/main.SuccessResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Create article
+      tags:
+      - article
+    put:
+      consumes:
+      - application/json
+      description: API for updating articles
+      parameters:
+      - description: article
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/models.ArticleReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Update Article
+      tags:
+      - article
+  /articles/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: API for delete by id article
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Delete By Id
+      tags:
+      - article
+    get:
+      consumes:
+      - application/json
+      description: API for get by id article
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Article'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+        "503":
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/main.DefaultError'
+      summary: Get By Id
+      tags:
+      - article
+swagger: "2.0"
