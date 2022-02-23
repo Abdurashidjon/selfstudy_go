@@ -29,7 +29,7 @@ func main() {
 	router.GET("/articles", getArticle)
 	router.GET("/articles/:id", getArticleById)
 	router.DELETE("/articles/:id", deleteById)
-	router.PUT("articles", updateById)
+	router.PUT("/articles", updateById)
 	//router.GET("articles/search", getSearch)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
