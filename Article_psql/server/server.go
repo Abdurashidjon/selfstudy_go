@@ -92,7 +92,13 @@ func createArticle(c *gin.Context) {
 // @Failure 500,503 {object} DefaultError
 func getArticle(c *gin.Context) {
 	rows, err := db.Query(
-		`SELECT ar.id, ar.title, ar.body, au.firstname, au.lastname, ar.created_at FROM article AS ar JOIN author AS au ON ar.author_id=au.id`,
+		`SELECT 
+		ar.id, 
+		ar.title, 
+		ar.body, 
+		au.firstname, 
+		au.lastname, 
+		ar.created_at FROM article AS ar JOIN author AS au ON ar.author_id = au.id`,
 	)
 	if err != nil {
 		c.JSON(400, gin.H{
@@ -100,13 +106,13 @@ func getArticle(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(rows)
 	defer rows.Close()
 	var arr []models.Article
 	for rows.Next() {
 		var a models.Article
 		err = rows.Scan(
-			&a.ID, &a.Body,
+			&a.ID, 
+			&a.Body,
 			&a.Title,
 			&a.Author.Firstname,
 			&a.Author.Lastname,
@@ -116,7 +122,6 @@ func getArticle(c *gin.Context) {
 			log.Panic(err)
 		}
 	}
-	fmt.Println(arr)
 	c.JSON(200, arr)
 }
 
@@ -132,7 +137,40 @@ func getArticle(c *gin.Context) {
 // @Failure 400,404 {object} ErrorResponse
 // @Failure 500,503 {object} DefaultError
 func getArticleById(c *gin.Context) {
-
+	rows, err := db.Query(
+		`SELECT     
+				ar.id, 
+				ar.title, 
+				ar.body, 
+				au.firstname, 
+				au.lastname, 
+				ar.created_at 
+				FROM article AS ar  JOIN author AS au ON (ar.author_id = au.id) WHERE ar.id = '$1'`,
+	)
+	//AS ar JOIN author AS au ON ar.author_id = au.id
+	if err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	defer rows.Close()
+	var arr []models.Article
+	for rows.Next() {
+		var a models.Article
+		err = rows.Scan(
+			&a.ID, 
+			&a.Body,
+			&a.Title,
+			&a.Author.Firstname,
+			&a.Author.Lastname,
+			&a.CreatedAt)
+		arr = append(arr, a)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+	c.JSON(200, arr)
 }
 
 // Id bo'yicha ma'lumotni o'chiruvchi funksiya
