@@ -19,3 +19,8 @@ type ArticleReq struct {
 	Content       // Promoted fiels
 	Author    Person `json:"author"`
 }
+
+type ArticleUpdate struct {
+	Content 
+	Author Person `json:"author"`
+}

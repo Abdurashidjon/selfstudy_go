@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -77,7 +78,32 @@ type SuccessResponse struct {
 // @Failure 400,404  {object} ErrorResponse
 // @Failure default {object} DefaultError
 func createArticle(c *gin.Context) {
+	var article models.Article
+	err := c.BindJSON(&article)
+	if err != nil {
+		c.JSON(400, err.Error())
+	}
+	query := `INSERT INTO author(
+		firstname,
+		lastname,
+		) 
+	VALUES ($1, $2)`
+	query2 := `INSERT INTO article(
+		id,
+		title,
+		body
+		) 
+		VALUES ($1, %2)`
 
+	_,err = db.Exec(query)
+	if err != nil {
+		panic(err)
+	}
+	_,err = db.Exec(query2)
+	if err != nil {
+		panic(err)
+	}
+	c.JSON(200, "Succes created")
 }
 
 // Funksiya ma'lumotlarni list qilib oladi array ichiga
@@ -111,7 +137,7 @@ func getArticle(c *gin.Context) {
 	for rows.Next() {
 		var a models.Article
 		err = rows.Scan(
-			&a.ID, 
+			&a.ID,
 			&a.Body,
 			&a.Title,
 			&a.Author.Firstname,
@@ -137,40 +163,40 @@ func getArticle(c *gin.Context) {
 // @Failure 400,404 {object} ErrorResponse
 // @Failure 500,503 {object} DefaultError
 func getArticleById(c *gin.Context) {
+	var arr models.Article
+	id := c.Param("id")
 	rows, err := db.Query(
-		`SELECT     
-				ar.id, 
-				ar.title, 
-				ar.body, 
-				au.firstname, 
-				au.lastname, 
-				ar.created_at 
-				FROM article AS ar  JOIN author AS au ON (ar.author_id = au.id) WHERE ar.id = '$1'`,
-	)
-	//AS ar JOIN author AS au ON ar.author_id = au.id
+		`SELECT
+				ar.id,
+				ar.title,
+				ar.body,
+				au.firstname,
+				au.lastname,
+				ar.created_at
+				FROM article AS ar  JOIN author AS au ON (ar.author_id = au.id) WHERE ar.id=$1`, id)
 	if err != nil {
-		c.JSON(400, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusNotFound, err)
 		return
 	}
 	defer rows.Close()
-	var arr []models.Article
 	for rows.Next() {
-		var a models.Article
 		err = rows.Scan(
-			&a.ID, 
-			&a.Body,
-			&a.Title,
-			&a.Author.Firstname,
-			&a.Author.Lastname,
-			&a.CreatedAt)
-		arr = append(arr, a)
+			&arr.ID,
+			&arr.Body,
+			&arr.Title,
+			&arr.Author.Firstname,
+			&arr.Author.Lastname,
+			&arr.CreatedAt)
 		if err != nil {
 			log.Panic(err)
 		}
 	}
-	c.JSON(200, arr)
+	if arr.ID == 0 && arr.CreatedAt == nil {
+		c.JSON(http.StatusNotFound, "Invalid id, not found")
+	} else {
+		c.JSON(http.StatusOK, arr)
+	}
+
 }
 
 // Id bo'yicha ma'lumotni o'chiruvchi funksiya
@@ -185,6 +211,24 @@ func getArticleById(c *gin.Context) {
 // @Failure 400,404 {object} ErrorResponse
 // @Failure 500,503 {object} DefaultError
 func deleteById(c *gin.Context) {
+	id := c.Param("id")
+	delete, err := db.Exec(`
+	DELETE from article WHERE id=$1`, id)
+	delete1, err := db.Exec(`
+	DELETE FROM author WHERE id=$1`, id)
+	if err != nil {
+		c.JSON(400, "Error")
+	}
+	delet, err := delete.RowsAffected()
+	delet1, err := delete1.RowsAffected()
+	if err != nil {
+		c.JSON(422, "Server error")
+	}
+	if delet == 0 && delet1 == 0 {
+		c.JSON(http.StatusNotFound, "Not found no id")
+	} else {
+		c.JSON(http.StatusOK, "Delete success")
+	}
 
 }
 
@@ -200,7 +244,46 @@ func deleteById(c *gin.Context) {
 // @Failure 400,404 {object} DefaultError
 // @Failure 500,503 {object} DefaultError
 func updateById(c *gin.Context) {
+	//id := c.Param("id")
 
+	var article models.Article
+	err := c.BindJSON(&article)
+	if err != nil {
+		c.JSON(400, "Bad request")
+	}
+	query := (`UPDATE article SET title=$1,body=$2,updated_at=NOW() WHERE id=$3`)
+	rows, err := db.Exec(
+		query,
+		article.Title,
+		article.Body,
+		article.ID,
+	)
+	if err != nil {
+		c.JSON(422, "Error")
+	}
+	updated, err := rows.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	query1 := (`UPDATE author SET firstname=$1,lastname=$2,updated_at=NOW() WHERE id=$3`)
+	rows1, err := db.Exec(
+		query1,
+		article.Author.Firstname,
+		article.Author.Lastname,
+		article.ID,
+	)
+	if err != nil {
+		c.JSON(422, "Error")
+	}
+	updated1, err := rows1.RowsAffected()
+	if err != nil {
+		panic(err)
+	}
+	if updated == 0 && updated1 == 0 {
+		c.JSON(http.StatusNotFound, "Not found, No id")
+	} else {
+		c.JSON(http.StatusOK, "Succes update")
+	}
 }
 
 // func getSearch(c *gin.Context) {
