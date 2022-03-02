@@ -227,7 +227,6 @@ func deleteById(c *gin.Context) {
 // @Failure 400,404 {object} models.DefaultError
 // @Failure 500,503 {object} models.DefaultError
 func updateById(c *gin.Context) {
-	//id := c.Param("id")
 
 	var article models.Article
 	err := c.BindJSON(&article)
