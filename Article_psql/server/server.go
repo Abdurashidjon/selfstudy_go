@@ -52,20 +52,6 @@ func main() {
 	router.Run(":8080")
 }
 
-type DefaultError struct {
-	Message string `json:"message"`
-}
-
-type ErrorResponse struct {
-	Message string `json:"message"`
-	Code    int    `json:"code"`
-}
-
-type SuccessResponse struct {
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
-}
-
 // Bu funksiya esa create qilish uchun
 // @Router /articles [POST]
 // @Summary Create article
@@ -74,36 +60,36 @@ type SuccessResponse struct {
 // @Accept json
 // @Produce json
 // @Param article body models.ArticleReq true "article"
-// @Success 201 {array} SuccessResponse
-// @Failure 400,404  {object} ErrorResponse
-// @Failure default {object} DefaultError
+// @Success 201 {array} models.SuccessResponse
+// @Failure 400,404  {object} models.ErrorResponse
+// @Failure default {object} models.DefaultError
 func createArticle(c *gin.Context) {
 	var article models.Article
 	err := c.BindJSON(&article)
 	if err != nil {
 		c.JSON(400, err.Error())
 	}
-	query := `INSERT INTO author(
-		firstname,
-		lastname,
-		) 
-	VALUES ($1, $2)`
-	query2 := `INSERT INTO article(
-		id,
-		title,
-		body
-		) 
-		VALUES ($1, %2)`
-
-	_,err = db.Exec(query)
+	query := `WITH author AS (
+		INSERT INTO author (
+			firstname,
+			lastname)
+			VALUES($1,$2) RETURNING id)
+			INSERT INTO article (	title,
+			body,author_id) VALUES(
+  		$3,$4 , (SELECT id FROM author) )`
+	rows, err := db.Exec(query, article.Title, article.Body, article.Author.Firstname, article.Author.Lastname)
 	if err != nil {
-		panic(err)
+		c.JSON(422, "Error ")
 	}
-	_,err = db.Exec(query2)
+	succes, err := rows.RowsAffected()
 	if err != nil {
-		panic(err)
+		c.JSON(400, "Error 400")
 	}
-	c.JSON(200, "Succes created")
+	if succes == 0 {
+		c.JSON(400, "error created")
+	} else {
+		c.JSON(200, "Succes create")
+	}
 }
 
 // Funksiya ma'lumotlarni list qilib oladi array ichiga
@@ -114,8 +100,8 @@ func createArticle(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Success 201 {array} models.Article
-// @Failure 400,404 {object} DefaultError
-// @Failure 500,503 {object} DefaultError
+// @Failure 400,404 {object} models.DefaultError
+// @Failure 500,503 {object} models.DefaultError
 func getArticle(c *gin.Context) {
 	rows, err := db.Query(
 		`SELECT 
@@ -160,8 +146,8 @@ func getArticle(c *gin.Context) {
 // @Produce json
 // @Param id path string true "id"
 // @Success 200 {object} models.Article
-// @Failure 400,404 {object} ErrorResponse
-// @Failure 500,503 {object} DefaultError
+// @Failure 400,404 {object} models.ErrorResponse
+// @Failure 500,503 {object} models.DefaultError
 func getArticleById(c *gin.Context) {
 	var arr models.Article
 	id := c.Param("id")
@@ -207,24 +193,21 @@ func getArticleById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Success 200 {string}  SuccessResponse
-// @Failure 400,404 {object} ErrorResponse
-// @Failure 500,503 {object} DefaultError
+// @Success 200 {string}  models.SuccessResponse
+// @Failure 400,404 {object} models.ErrorResponse
+// @Failure 500,503 {object} models.DefaultError
 func deleteById(c *gin.Context) {
 	id := c.Param("id")
 	delete, err := db.Exec(`
-	DELETE from article WHERE id=$1`, id)
-	delete1, err := db.Exec(`
-	DELETE FROM author WHERE id=$1`, id)
-	if err != nil {
-		c.JSON(400, "Error")
-	}
+		WITH article AS(DELETE FROM 
+			article WHERE id=$1 RETURNING author_id)
+			DELETE FROM author WHERE id=(SELECT author_id from article)`, id)
+
 	delet, err := delete.RowsAffected()
-	delet1, err := delete1.RowsAffected()
 	if err != nil {
 		c.JSON(422, "Server error")
 	}
-	if delet == 0 && delet1 == 0 {
+	if delet == 0 {
 		c.JSON(http.StatusNotFound, "Not found no id")
 	} else {
 		c.JSON(http.StatusOK, "Delete success")
@@ -240,9 +223,9 @@ func deleteById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param article body models.ArticleReq true "article"
-// @Success 200 {string} SuccessResponse
-// @Failure 400,404 {object} DefaultError
-// @Failure 500,503 {object} DefaultError
+// @Success 200 {string} models.SuccessResponse
+// @Failure 400,404 {object} models.DefaultError
+// @Failure 500,503 {object} models.DefaultError
 func updateById(c *gin.Context) {
 	//id := c.Param("id")
 
@@ -251,12 +234,16 @@ func updateById(c *gin.Context) {
 	if err != nil {
 		c.JSON(400, "Bad request")
 	}
-	query := (`UPDATE article SET title=$1,body=$2,updated_at=NOW() WHERE id=$3`)
+	query := (`WITH article AS(UPDATE article SET title=$1, body=$2, updated_at=NOW() WHERE id=$3 RETURNING author_id)
+		UPDATE author SET firstname=$4, lastname=$5, updated_at=NOW() WHERE id=(SELECT author_id FROM article)
+	`)
 	rows, err := db.Exec(
 		query,
 		article.Title,
 		article.Body,
 		article.ID,
+		article.Author.Firstname,
+		article.Author.Lastname,
 	)
 	if err != nil {
 		c.JSON(422, "Error")
@@ -265,21 +252,8 @@ func updateById(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	query1 := (`UPDATE author SET firstname=$1,lastname=$2,updated_at=NOW() WHERE id=$3`)
-	rows1, err := db.Exec(
-		query1,
-		article.Author.Firstname,
-		article.Author.Lastname,
-		article.ID,
-	)
-	if err != nil {
-		c.JSON(422, "Error")
-	}
-	updated1, err := rows1.RowsAffected()
-	if err != nil {
-		panic(err)
-	}
-	if updated == 0 && updated1 == 0 {
+
+	if updated == 0 {
 		c.JSON(http.StatusNotFound, "Not found, No id")
 	} else {
 		c.JSON(http.StatusOK, "Succes update")

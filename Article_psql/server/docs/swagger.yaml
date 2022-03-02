@@ -1,22 +1,4 @@
 definitions:
-  main.DefaultError:
-    properties:
-      message:
-        type: string
-    type: object
-  main.ErrorResponse:
-    properties:
-      code:
-        type: integer
-      message:
-        type: string
-    type: object
-  main.SuccessResponse:
-    properties:
-      data: {}
-      message:
-        type: string
-    type: object
   models.Article:
     properties:
       author:
@@ -41,11 +23,29 @@ definitions:
       title:
         type: string
     type: object
+  models.DefaultError:
+    properties:
+      message:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
   models.Person:
     properties:
       firstname:
         type: string
       lastname:
+        type: string
+    type: object
+  models.SuccessResponse:
+    properties:
+      data: {}
+      message:
         type: string
     type: object
 host: localhost:8080
@@ -73,19 +73,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
       summary: Get All
       tags:
       - article
@@ -107,20 +107,20 @@ paths:
           description: Created
           schema:
             items:
-              $ref: '#/definitions/main.SuccessResponse'
+              $ref: '#/definitions/models.SuccessResponse'
             type: array
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/main.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         default:
           description: ""
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
       summary: Create article
       tags:
       - article
@@ -145,19 +145,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
       summary: Update Article
       tags:
       - article
@@ -182,19 +182,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/main.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
       summary: Delete By Id
       tags:
       - article
@@ -218,19 +218,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/main.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/main.ErrorResponse'
+            $ref: '#/definitions/models.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
         "503":
           description: Service Unavailable
           schema:
-            $ref: '#/definitions/main.DefaultError'
+            $ref: '#/definitions/models.DefaultError'
       summary: Get By Id
       tags:
       - article
