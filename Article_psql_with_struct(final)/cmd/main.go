@@ -38,7 +38,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 
-	api.SetUpAPI(r, h)
+	api.SetUpAPI(r, h, cfg)
 
 	r.Run(":8080")
 }

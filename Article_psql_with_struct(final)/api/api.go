@@ -6,17 +6,21 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
 
+	"gitlab.com/Udevs/Article/api/docs"
 	_ "gitlab.com/Udevs/Article/api/docs"
 	"gitlab.com/Udevs/Article/api/handlers"
+	"gitlab.com/Udevs/Article/config"
 )
 
-
-// @title Swager Example API
-// @version 1.1
 // @description this is a sample article demo
 // @termsOfService https://udevs.io
-// @host localhost:8080
-func SetUpAPI(r *gin.Engine, h handlers.Handler) {
+func SetUpAPI(r *gin.Engine, h handlers.Handler, cfg config.Config) {
+	// programmaticaly set swagger info 
+	docs.SwaggerInfo_swagger.Title = cfg.App
+	docs.SwaggerInfo_swagger.Version = cfg.Version
+	docs.SwaggerInfo_swagger.Host = cfg.ServiceHost + cfg.HTTPPort
+	docs.SwaggerInfo_swagger.Schemes = []string{"http","https"}
+
 	//router := gin.Default()
 	r.POST("/articles", h.CreateArticle)
 	r.GET("/articles", h.GetListArticle)

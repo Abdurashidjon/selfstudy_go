@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/jmoiron/sqlx"
-	"gitlab.com/Udevs/Article/storage"
 	_ "github.com/lib/pq"
+	"gitlab.com/Udevs/Article/storage"
 )
 
 type Store struct {

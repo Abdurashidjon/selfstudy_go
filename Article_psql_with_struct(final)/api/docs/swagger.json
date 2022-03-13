@@ -2,12 +2,9 @@
     "swagger": "2.0",
     "info": {
         "description": "this is a sample article demo",
-        "title": "Swager Example API",
         "termsOfService": "https://udevs.io",
-        "contact": {},
-        "version": "1.1"
+        "contact": {}
     },
-    "host": "localhost:8080",
     "paths": {
         "/articles": {
             "get": {

@@ -11,12 +11,13 @@ import (
 type Config struct {
 	App         string
 	Environment string // dev,test, prod
+	Version     string
 
 	ServiceHost string
 	HTTPPort    string
 
 	PostgresHost     string
-	PostgresPort     string
+	PostgresPort     int
 	PostgresUser     string
 	PostgresPassword string
 	PostgresDatabase string
@@ -26,33 +27,34 @@ type Config struct {
 }
 
 // Load ...
-func Load() Config{
+func Load() Config {
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found")
 	}
 
 	config := Config{}
 
-	config.App = cast.ToString(getOrReturnDefaultValue("PROJECT_NAME","go_boilerplate"))
-	config.Environment = cast.ToString(getOrReturnDefaultValue("ENVIRONMENT","dev"))
+	config.App = cast.ToString(getOrReturnDefaultValue("PROJECT_NAME", "go_boilerplate"))
+	config.Environment = cast.ToString(getOrReturnDefaultValue("ENVIRONMENT", "dev"))
+	config.Version = cast.ToString(getOrReturnDefaultValue("VERSION", "1.0"))
 
-	config.ServiceHost = cast.ToString(getOrReturnDefaultValue("SERVICE_HOST","localhsot"))
-	config.HTTPPort = cast.ToString(getOrReturnDefaultValue("HTTP_PORT",":8080"))
+	config.ServiceHost = cast.ToString(getOrReturnDefaultValue("SERVICE_HOST", "localhsot"))
+	config.HTTPPort = cast.ToString(getOrReturnDefaultValue("HTTP_PORT", ":8080"))
 
-	config.PostgresHost = cast.ToString(getOrReturnDefaultValue("POSTGRES_HOST","localhost"))
-	config.PostgresPort = cast.ToString(getOrReturnDefaultValue("POSTGRES_PORT",5432))
-	config.PostgresUser = cast.ToString(getOrReturnDefaultValue("POSTGRES_USER","postgres"))
-	config.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD","your_db_password"))
-	config.PostgresDatabase = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE","your_db_database"))
+	config.PostgresHost = cast.ToString(getOrReturnDefaultValue("POSTGRES_HOST", "localhost"))
+	config.PostgresPort = cast.ToInt(getOrReturnDefaultValue("POSTGRES_PORT", 5432))
+	config.PostgresUser = cast.ToString(getOrReturnDefaultValue("POSTGRES_USER", "postgres"))
+	config.PostgresPassword = cast.ToString(getOrReturnDefaultValue("POSTGRES_PASSWORD", "your_db_password"))
+	config.PostgresDatabase = cast.ToString(getOrReturnDefaultValue("POSTGRES_DATABASE", "your_db_database"))
 
-	config.DefaultOffset = cast.ToString(getOrReturnDefaultValue("DEFAULT_OFFSET","0"))
-	config.DefaultLimit = cast.ToString(getOrReturnDefaultValue("DEFAULT_LIMIT","10"))
+	config.DefaultOffset = cast.ToString(getOrReturnDefaultValue("DEFAULT_OFFSET", "0"))
+	config.DefaultLimit = cast.ToString(getOrReturnDefaultValue("DEFAULT_LIMIT", "10"))
 
 	return config
 }
 
-func getOrReturnDefaultValue(key string,defaultValue interface{})  interface{}{
-	val,exists := os.LookupEnv(key)
+func getOrReturnDefaultValue(key string, defaultValue interface{}) interface{} {
+	val, exists := os.LookupEnv(key)
 	if exists {
 		return val
 	}

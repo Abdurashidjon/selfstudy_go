@@ -403,11 +403,11 @@ const docTemplate_swagger = `{
 
 // SwaggerInfo_swagger holds exported Swagger Info so clients can modify it
 var SwaggerInfo_swagger = &swag.Spec{
-	Version:          "1.1",
-	Host:             "localhost:8080",
+	Version:          "",
+	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Swager Example API",
+	Title:            "",
 	Description:      "this is a sample article demo",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate_swagger,
